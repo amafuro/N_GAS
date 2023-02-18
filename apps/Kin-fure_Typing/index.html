@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    </head>
+    <body>
+        <!-- ここをJavascriptで書き換えて表示 -->
+        <div class="p-words js-words-content"></div>
+
+        <!-- Javascript -->
+        <script>
+            let questionCount = 0;
+            let correctCount = 0;
+            let questionListNo = 0;
+            let questionNo = 0;
+            let btn_id_num = 1;
+
+            // スプレッドシートの情報を取得
+            let score_info = JSON.parse('<?!=JSON.stringify(score_info) ?>');
+            const words_info = JSON.parse('<?!=JSON.stringify(words_info) ?>');
+            //回答する問題の配列
+            let select_words_info = new Array();
+            let select_words_info_toReset = new Array();
+
+            // トップ画面の生成
+            generate_top_content();
+            // 問題開始のイベント設定
+            register_start_event();
+
+            // 自動でカーソルをフォーカス
+            document.getElementById('js-focus').focus();
+
+            // トップ画面の生成
+            function generate_top_content() {
+                let ins = '<h1  class = "text-center"  style = "margin:250px 60px 60px; font-size:50px;" >Kin-Fure Typing</h1>';
+                    ins += '<div class = "container my-5">';
+                        ins += '<div class = "row justify-content-center">';
+                            ins += '<button class = "col-8 btn btn-lg btn-outline-primary js-words-start" id = "js-focus">はじめる</button>';
+                        ins += '</div>';
+                    ins += '</div>';
+                document.querySelector('.js-words-content').innerHTML = ins;
+            }
+
+            // 問題リストを表示するイベントを設定
+            function register_start_event() {
+                document.querySelector('.js-words-start').addEventListener('click', function() {
+                    // 問題画面の生成
+                    generate_question_list();
+                    // 問題リストから選択したときのイベント設定
+                    question_choice_event();
+                    // 自動で一番最初の問題をフォーカス
+                    document.getElementById('js-btnSelect-WS-1').focus();
+                    // WSキーを選択したときのイベントを設定
+                    KeyPress_WS();
+            
+                }, false);
+            }
+
+            // 問題のリストを表示する
+            function generate_question_list() {
+                let btn_color = ' '
+                let ins = '<h1  class="sticky-top d-flex align-items-center text-center justify-content-center bg-white"  style = "height:150px;  font-size:50px;">Question List</h1>';
+                ins += '<div class = "container text-center">';
+                    ins += '<div class="list-group">';
+                    for (var i = 0; i < score_info.length; i++) {
+                        if (score_info[i][3] === 'Clear!🎉') {
+                            btn_color = 'list-group-item-primary'
+                        } else {
+                            btn_color = ' '
+                        }
+                        ins += '<a href="#" class="list-group-item ' + btn_color + ' js-words-choice" data-words_choice="' + (i+1) + '" id = "js-btnSelect-WS-' + (i+1) + '"><big><big><big>' + score_info[i][1] + '~' + score_info[i][2] + ' : ' + score_info[i][3]+ '</big></big></big></a>';
+                    }
+                    ins += '</div>';
+                ins += '</div>';
+                document.querySelector('.js-words-content').innerHTML = ins;
+            }
+            //問題を選択したときのイベントを設定
+            function question_choice_event() {
+                btn_id_num = 1;
+                for (var i = 0; i < document.querySelectorAll('.js-words-choice').length; i++) {
+                    document.querySelectorAll('.js-words-choice')[i].addEventListener('click', function(e) {
+                        // 選択した問題の最初の単語番号を取得
+                        questionListNo = parseFloat(this.getAttribute('data-words_choice'))-1;
+                        questionNo = score_info[questionListNo][1]-1;
+                        // 選択した問題の配列を切り出し
+                        select_words_info = words_info.slice(questionNo,questionNo+20);
+                        select_words_info_toReset = JSON.parse(JSON.stringify(select_words_info));
+                        // 問題画面の生成
+                        generate_question_content();
+                        // 単語の意味を回答したときのイベントを設定
+                        question_answer_event();
+                        // 自動でカーソルをフォーカス
+                        document.getElementById('js-focus').focus();
+                    }, false);
+                }
+            }
+
+            // 問題画面の生成
+            function generate_question_content() {
+                let ins = '<h1 class="text-center js-words-info" style = "margin:250px 60px 60px; font-size:50px;" data-words-No="' + questionNo + '">' + words_info[questionNo][1] + '</h1>';
+                    ins += '<div class = "container text-center">';
+                        ins += '<input class="form-control form-control-lg js-answered" style ="text-align: center; font-size:50px;" type="text"  id = "js-focus" name="answer">';
+                        ins += '<div class="form-text text-center">全角文字で入力 Enterで次へ</div>';
+                    ins += '</div>';
+
+                    document.querySelector('.js-words-content').innerHTML = ins;
+            }
+            // 単語の意味をフォームで回答したときのイベントを設定
+            function question_answer_event() {
+                document.querySelector('.js-answered').addEventListener('keypress', function(e) {
+                    // エンターキーを押したとき
+                    if (e.keyCode === 13) {
+                        // 答え合わせの画面を生成
+                        generate_checkAnswer_content();
+                        // 次の問題 or 結果画面を生成するイベントを設定
+                        register_nextQuestion_event();
+                        // 自動でカーソルをフォーカス
+                        document.getElementById('js-focus').focus();
+                    }
+                }, false);
+                
+            }
+
+            // 答え合わせの画面を生成
+            function generate_checkAnswer_content() {
+                // 回答フォームの文字を取得する
+                let answer_text = document.getElementById('js-focus').value;
+                // 回答を取得
+                let question_answer =  words_info[questionNo][2];
+                let test = '回答結果'
+
+                // 正解不正解の判定
+                if (answer_text === question_answer) {
+                    test = '🔵';
+                    correctCount++;
+
+                } else {
+                    test = '🔴';
+
+                }
+
+                let ins = '<h1 class="text-center js-words-info"" style = "margin:250px 60px 60px; font-size:50px;">' + words_info[questionNo][1] + '</h1>';
+                    ins += '<div class = "container text-center">';
+                        ins += '<div class = "row justify-content-center">';
+                            ins += '<h1 class = "col-12 mb-5"" style = "font-size:50px;">' + test + '</h1>';
+                            ins += '<h3 class = "col-6 js-words-info">' + 'こたえ : ' + question_answer + '</h3>';
+                            ins += '<h3 class = "col-6 js-words-info">' + '回答 : ' + answer_text + '</h3>';
+                            ins += '<button class = "col-5 mt-3 btn btn-lg btn-outline-primary js-next-word"  id = "js-focus">次の問題へ</button>';
+                        ins += '</div>';
+                    ins += '</div>';
+                document.querySelector('.js-words-content').innerHTML = ins;
+
+                // 結果を記録
+                select_words_info[questionCount].push(test)
+                // 次の問題にカウントを進める
+                questionNo++;
+                questionCount++;
+
+            }
+            // 次の問題 or 結果画面を生成するイベントを設定
+            function register_nextQuestion_event() {
+                document.querySelector('.js-next-word').addEventListener('click', function() {
+                    if (20 === questionCount){
+                        // 満点のときにスプレッドシートの全クリ履歴を更新
+                        if (correctCount === 20) {
+                            score_info[questionListNo][3] = 'Clear!🎉';
+                            google.script.run.update_score(questionListNo+2)
+
+                        }
+                        // 結果画面の生成
+                        generate_result_content();
+                        // 遷移画面用のボタンを押したときのイベントを設定
+                        backTo_ListOrSameQuestion();
+                        // 矢印キーを押したときのイベントを設定
+                        KeyPress_AD();
+
+                    } else {
+                        // 問題画面を生成
+                        generate_question_content();
+                        // 単語の意味を回答したときのイベントを設定
+                        question_answer_event();
+                        // 自動でカーソルをフォーカス
+                        document.getElementById('js-focus').focus();
+                    
+                    }
+                    
+                }, false);
+
+            }
+            // 結果画面の生成
+            function generate_result_content() {
+                let ins = '<h1  class = "text-center" style = "margin:100px; font-size:50px;">' + score_info[questionListNo][1] + '~' + score_info[questionListNo][2] + ' : ' + score_info[questionListNo][3] + '</h1>';
+                    ins += '<div class = "container text-center">';
+                        ins += '<div class = "row justify-content-evenly">';
+                            ins += '<button class="col-5 btn btn-lg btn-outline-primary js-replay" id="js-replay">リプレイ</button>';
+                            ins += '<button class="col-5 btn btn-lg btn-outline-primary js-anoher-question" id="js-anoher-question">別の問題</button>';
+                        ins += '</div>';
+                    ins += '</div>';
+
+                    ins += '<div class = "container text-center my-5">';
+                        ins += '<div class = "row justify-content-center">';
+
+                            ins += '<div class="col-5 p-0">';
+                                ins += '<ul class="list-group">';
+                                for (var i = 0; i < 10; i++) {
+
+                                    if (select_words_info[i][5] === '🔵') {
+                                        ins += '<li class="list-group-item list-group-item-primary "><big>' + select_words_info[i][1] + ' : ' + select_words_info[i][2] + '</big></li>';
+
+                                    } else {
+                                        ins += '<li class="list-group-item "><big>' + select_words_info[i][1] + ' : ' + select_words_info[i][2] + '</big></li>';
+                                    }
+                                }
+                                ins += '</ul>';
+                            ins += '</div>';
+
+                            ins += '<div class="col-5 p-0">';
+                                ins += '<ul class="list-group">';
+                                for (var i = 10; i < 20; i++) {
+
+                                    if (select_words_info[i][5] === '🔵') {
+                                        ins += '<li class="list-group-item list-group-item-primary "><big>' + select_words_info[i][1] + ' : ' + select_words_info[i][2] + '</big></li>';
+
+                                    } else {
+                                        ins += '<li class="list-group-item "><big>' + select_words_info[i][1] + ' : ' + select_words_info[i][2] + '</big></li>';
+                                    }
+                                }
+                                ins += '</ul>';
+                            ins += '</div>';
+
+                        ins += '</div>'; 
+                    ins += '</div>';
+
+                document.querySelector('.js-words-content').innerHTML = ins;
+            }
+            // 遷移画面用のボタンを押したときのイベントを設定
+            function backTo_ListOrSameQuestion() {
+                // リプレイボタンを押したとき
+                document.querySelector('.js-replay').addEventListener('click', function() {
+                    // 各種パラメータをリセット
+                    questionCount = 0;
+                    correctCount = 0;
+                    questionNo = score_info[questionListNo][1]-1;
+                    select_words_info = JSON.parse(JSON.stringify(select_words_info_toReset));
+                    // 問題画面を生成
+                    generate_question_content();
+                    // 単語の意味を回答したときのイベントを設定
+                    question_answer_event();
+                    // 自動でカーソルをフォーカス
+                    document.getElementById('js-focus').focus();
+                    
+                }, false);
+                // 別問題ボタンを選択したとき
+                document.querySelector('.js-anoher-question').addEventListener('click', function() {
+                    questionCount = 0;
+                    correctCount = 0;
+                    // 問題画面の生成
+                    generate_question_list();
+                    // 問題リストから選択したときのイベント設定
+                    question_choice_event();
+                    // 自動で一番最初の問題をフォーカス
+                    document.getElementById('js-btnSelect-WS-1').focus();
+
+                }, false);
+
+            }
+            function KeyPress_AD() {
+                document.addEventListener('keypress', function(e) {
+                    if (e.keyCode === 97) {// Aキーを押したとき
+                        // リプレイをフォーカス
+                        document.getElementById('js-replay').focus();
+                    } else if (e.keyCode === 100){// Dキーを押したとき
+                        // 別の問題をフォーカス
+                        document.getElementById('js-anoher-question').focus();
+                    }
+                }, false);
+            }
+            function KeyPress_WS() {
+                document.addEventListener('keypress', function(e) {
+                    let ins = 'js-btnSelect-WS-'
+                    if (e.keyCode === 119) {// Wキーを押したとき
+                        // ひとつ上の問題をフォーカス
+                        if (1 < btn_id_num) {
+                            btn_id_num--;
+                        }
+                        document.getElementById(ins + btn_id_num).focus();
+                    } else if (e.keyCode === 115){// Sキーを押したとき
+                        
+                        // 一つしたの問題をフォーカス
+                        if (btn_id_num < score_info.length) {
+                            btn_id_num++;
+                        }
+                        document.getElementById(ins + btn_id_num).focus();
+                    }
+                }, false);
+            }
+
+        </script>
+
+    </body>
+</html>
