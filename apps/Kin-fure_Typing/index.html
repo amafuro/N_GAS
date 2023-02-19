@@ -141,12 +141,12 @@
                 }
 
                 let ins = '<h1 class="text-center js-words-info"" style = "margin:250px 60px 60px; font-size:50px;">' + words_info[questionNo][1] + '</h1>';
-                    ins += '<div class = "container text-center">';
+                ins += '<div class = "container text-center">';
                         ins += '<div class = "row justify-content-center">';
-                            ins += '<h1 class = "col-12 mb-5"" style = "font-size:50px;">' + test + '</h1>';
-                            ins += '<h3 class = "col-6 js-words-info">' + 'こたえ : ' + question_answer + '</h3>';
-                            ins += '<h3 class = "col-6 js-words-info">' + '回答 : ' + answer_text + '</h3>';
-                            ins += '<button class = "col-5 mt-3 btn btn-lg btn-outline-primary js-next-word"  id = "js-focus">次の問題へ</button>';
+                            ins += '<h1 class = "col-12 mb-5" style = "font-size:50px;">' + test + '</h1>';
+                            ins += '<h1 class = "col-12 js-words-info" style = "font-size:50px;">' + 'こたえ : ' + question_answer + '</h1>';
+                            ins += '<h1 class = "col-12 js-words-info" style = "font-size:50px;">' + '回答 : ' + answer_text + '</h1>';
+                            ins += '<button class = "col-5 m-5 btn btn-lg btn-outline-primary js-next-word"  id = "js-focus">次の問題へ</button>';
                         ins += '</div>';
                     ins += '</div>';
                 document.querySelector('.js-words-content').innerHTML = ins;
@@ -190,7 +190,7 @@
             }
             // 結果画面の生成
             function generate_result_content() {
-                let ins = '<h1  class = "text-center" style = "margin:100px; font-size:50px;">' + score_info[questionListNo][1] + '~' + score_info[questionListNo][2] + ' : ' + score_info[questionListNo][3] + '</h1>';
+                let ins = '<h1  class = "text-center" style = "margin:70px; font-size:50px;">' + score_info[questionListNo][1] + '~' + score_info[questionListNo][2] + ' : ' + score_info[questionListNo][3] + '</h1>';
                     ins += '<div class = "container text-center">';
                         ins += '<div class = "row justify-content-evenly">';
                             ins += '<button class="col-5 btn btn-lg btn-outline-primary js-replay" id="js-replay">リプレイ</button>';
