@@ -16,6 +16,35 @@ function doGet() {
     // 問題リストとスコアを読み込む
     var score_info = score_sheet.getDataRange().getValues();
     score_info.shift();
+
+    // 特殊文字をエスケープ処理
+    function htmlspecialchars(unsafeText){
+        if(typeof unsafeText !== 'string'){
+            return unsafeText;
+        }
+        return unsafeText.replace(
+            /[&'`"<>]/g, 
+            function(match) {
+            return {
+                '&': '&amp;',
+                "'": '&#x27;',
+                '`': '&#x60;',
+                '"': '&quot;',
+                '<': '&lt;',
+                '>': '&gt;',
+            }[match]
+            }
+        );
+    }
+    for(let i=0; i<words_info.length; i++){
+        words_info[i] = htmlspecialchars(words_info[i]);
+
+    }
+    for(let i=0; i<score_info.length; i++){
+        score_info[i] = htmlspecialchars(score_info[i]);
+
+    }
+
     htmlTemplate.score_info = score_info;
     return htmlTemplate.evaluate()
         .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -23,5 +52,7 @@ function doGet() {
 }
 // 単語テストで満点だった時に，スコアを更新する
 function update_score(li_No) {
+    let today = new Date();
     score_sheet.getRange(li_No, 4).setValue('Clear!🎉');
+    score_sheet.getRange(li_No, 5).setValue(today);
 }

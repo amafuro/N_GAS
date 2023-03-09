@@ -59,17 +59,36 @@
 
             // 問題のリストを表示する
             function generate_question_list() {
-                let btn_color = ' '
+                let btn_color = ''
+                let lastUpdate = ''
                 let ins = '<h1  class="sticky-top d-flex align-items-center text-center justify-content-center bg-white"  style = "height:150px;  font-size:50px;">Question List</h1>';
                 ins += '<div class = "container text-center">';
                     ins += '<div class="list-group">';
                     for (var i = 0; i < score_info.length; i++) {
-                        if (score_info[i][3] === 'Clear!🎉') {
+
+                        let today = new Date();
+                        let lastUpdateDate = new Date(score_info[i][4]);
+                        let NumberOfDaysOfTheFinalClearDay = (lastUpdateDate  - today) / 86400000
+
+                        if (score_info[i][3] === 'Clear!🎉' && NumberOfDaysOfTheFinalClearDay < 7) {
                             btn_color = 'list-group-item-primary'
+                            lastUpdate = ''
+                        } else if (score_info[i][3] === 'Clear!🎉' && NumberOfDaysOfTheFinalClearDay < 14) {
+                            btn_color = 'list-group-item-warning'
+                            lastUpdate = ''
+                        } else if (score_info[i][3] === 'Clear!🎉') {
+                            btn_color = 'list-group-item-danger'
+                            let month_english_list = ['Jan.','Feb.','Mar.','Apr.','May','June','July','Aug.','Sept.','Oct.','Nov.','Dec.'];
+                            let month = lastUpdateDate.getMonth();
+                            let month_english =  month_english_list[month];
+                            let day = lastUpdateDate.getDate();
+                            lastUpdate = "  " + month_english + " " + day
                         } else {
-                            btn_color = ' '
+                            btn_color = ''
+                            lastUpdate = ''
                         }
-                        ins += '<a href="#" class="list-group-item ' + btn_color + ' js-words-choice" data-words_choice="' + (i+1) + '" id = "js-btnSelect-WS-' + (i+1) + '"><big><big><big>' + score_info[i][1] + '~' + score_info[i][2] + ' : ' + score_info[i][3]+ '</big></big></big></a>';
+
+                        ins += '<a href="#" class="list-group-item ' + btn_color + ' js-words-choice" data-words_choice="' + (i+1) + '" id = "js-btnSelect-WS-' + (i+1) + '"><big><big><big>' + score_info[i][1] + '~' + score_info[i][2] + ' : ' + score_info[i][3] + lastUpdate + '</big></big></big></a>';
                     }
                     ins += '</div>';
                 ins += '</div>';
@@ -164,6 +183,8 @@
                     if (20 === questionCount){
                         // 満点のときにスプレッドシートの全クリ履歴を更新
                         if (correctCount === 20) {
+                            let today = new Date();
+                            score_info[questionListNo][4] = today;
                             score_info[questionListNo][3] = 'Clear!🎉';
                             google.script.run.update_score(questionListNo+2)
 
