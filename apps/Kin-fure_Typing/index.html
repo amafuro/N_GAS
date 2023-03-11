@@ -21,7 +21,6 @@
             const words_info = JSON.parse('<?!=JSON.stringify(words_info) ?>');
             //回答する問題の配列
             let select_words_info = new Array();
-            let select_words_info_toReset = new Array();
 
             // トップ画面の生成
             generate_top_content();
@@ -104,7 +103,6 @@
                         questionNo = score_info[questionListNo][1]-1;
                         // 選択した問題の配列を切り出し
                         select_words_info = words_info.slice(questionNo,questionNo+20);
-                        select_words_info_toReset = JSON.parse(JSON.stringify(select_words_info));
                         // 問題画面の生成
                         generate_question_content();
                         // 単語の意味を回答したときのイベントを設定
@@ -147,6 +145,8 @@
                 let answer_text = document.getElementById('js-focus').value;
                 // 回答を取得
                 let question_answer =  words_info[questionNo][2];
+                let exampleSentenceEn = words_info[questionNo][3];
+                let exampleSentenceJa = words_info[questionNo][4];
                 let test = '回答結果'
 
                 // 正解不正解の判定
@@ -162,16 +162,16 @@
                 let ins = '<h1 class="text-center js-words-info"" style = "margin:250px 60px 60px; font-size:50px;">' + words_info[questionNo][1] + '</h1>';
                 ins += '<div class = "container text-center">';
                         ins += '<div class = "row justify-content-center">';
-                            ins += '<h1 class = "col-12 mb-5" style = "font-size:50px;">' + test + '</h1>';
-                            ins += '<h1 class = "col-12 js-words-info" style = "font-size:50px;">' + 'こたえ : ' + question_answer + '</h1>';
-                            ins += '<h1 class = "col-12 js-words-info" style = "font-size:50px;">' + '回答 : ' + answer_text + '</h1>';
+                            ins += '<p class = "col-12 mb-5" style = "font-size:50px;">' + test + ' : ' + question_answer +  '</p>';
+                            ins += '<p class = "col-12 js-words-info" style = "font-size:50px;">' + exampleSentenceEn + '</p>';
+                            ins += '<p class = "col-12 js-words-info text text-secondary pt-0 mt-0">' + exampleSentenceJa + '</p>';
                             ins += '<button class = "col-5 m-5 btn btn-lg btn-outline-primary js-next-word"  id = "js-focus">次の問題へ</button>';
                         ins += '</div>';
                     ins += '</div>';
                 document.querySelector('.js-words-content').innerHTML = ins;
 
                 // 結果を記録
-                select_words_info[questionCount].push(test)
+                select_words_info[questionCount][5] = test;
                 // 次の問題にカウントを進める
                 questionNo++;
                 questionCount++;
@@ -263,7 +263,6 @@
                     questionCount = 0;
                     correctCount = 0;
                     questionNo = score_info[questionListNo][1]-1;
-                    select_words_info = JSON.parse(JSON.stringify(select_words_info_toReset));
                     // 問題画面を生成
                     generate_question_content();
                     // 単語の意味を回答したときのイベントを設定

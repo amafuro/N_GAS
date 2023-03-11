@@ -37,12 +37,8 @@ function doGet() {
         );
     }
     for(let i=0; i<words_info.length; i++){
-        words_info[i] = htmlspecialchars(words_info[i]);
-
-    }
-    for(let i=0; i<score_info.length; i++){
-        score_info[i] = htmlspecialchars(score_info[i]);
-
+        words_info[i][3] = htmlspecialchars(words_info[i][3]);
+        words_info[i][4] = htmlspecialchars(words_info[i][4]);
     }
 
     htmlTemplate.score_info = score_info;
