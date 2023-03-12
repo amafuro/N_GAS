@@ -32,7 +32,7 @@
 
             // トップ画面の生成
             function generate_top_content() {
-                let ins = '<h1  class = "text-center"  style = "margin:250px 60px 60px; font-size:50px;" >Kin-Fure Typing</h1>';
+                let ins = '<h1  class = "text-center"  style = "margin:150px 60px 60px; font-size:50px;" >Kin-Fure Typing</h1>';
                     ins += '<div class = "container my-5">';
                         ins += '<div class = "row justify-content-center">';
                             ins += '<button class = "col-8 btn btn-lg btn-outline-primary js-words-start" id = "js-focus">はじめる</button>';
@@ -67,7 +67,7 @@
 
                         let today = new Date();
                         let lastUpdateDate = new Date(score_info[i][4]);
-                        let NumberOfDaysOfTheFinalClearDay = (lastUpdateDate  - today) / 86400000
+                        let NumberOfDaysOfTheFinalClearDay = (today - lastUpdateDate) / 86400000
 
                         if (score_info[i][3] === 'Clear!🎉' && NumberOfDaysOfTheFinalClearDay < 7) {
                             btn_color = 'list-group-item-primary'
@@ -115,10 +115,9 @@
 
             // 問題画面の生成
             function generate_question_content() {
-                let ins = '<h1 class="text-center js-words-info" style = "margin:250px 60px 60px; font-size:50px;" data-words-No="' + questionNo + '">' + words_info[questionNo][1] + '</h1>';
+                let ins = '<h1 class="text-center js-words-info" style = "margin:100px 60px 60px; font-size:50px;" data-words-No="' + questionNo + '">' + words_info[questionNo][1] + '</h1>';
                     ins += '<div class = "container text-center">';
                         ins += '<input class="form-control form-control-lg js-answered" style ="text-align: center; font-size:50px;" type="text"  id = "js-focus" name="answer">';
-                        ins += '<div class="form-text text-center">全角文字で入力 Enterで次へ</div>';
                     ins += '</div>';
 
                     document.querySelector('.js-words-content').innerHTML = ins;
@@ -148,24 +147,26 @@
                 let exampleSentenceEn = words_info[questionNo][3];
                 let exampleSentenceJa = words_info[questionNo][4];
                 let test = '回答結果'
+                let answerBtn = 'btn-outline-primary'
 
                 // 正解不正解の判定
                 if (answer_text === question_answer) {
                     test = '🔵';
+                    answerBtn = 'btn-outline-primary'
                     correctCount++;
 
                 } else {
                     test = '🔴';
+                    answerBtn = 'btn-outline-danger'
 
                 }
 
-                let ins = '<h1 class="text-center js-words-info"" style = "margin:250px 60px 60px; font-size:50px;">' + words_info[questionNo][1] + '</h1>';
+                let ins = '<h1 class="text-center js-words-info"" style = "margin:100px 60px 60px; font-size:50px;">' + words_info[questionNo][1] + '</h1>';
                 ins += '<div class = "container text-center">';
                         ins += '<div class = "row justify-content-center">';
-                            ins += '<p class = "col-12 mb-5" style = "font-size:50px;">' + test + ' : ' + question_answer +  '</p>';
+                            ins += '<button class = "col-12 mb-5 btn ' + answerBtn + ' text-dark js-next-word"  id = "js-focus" style = "font-size:50px;">' + test + ' : ' + question_answer + '</button>';
                             ins += '<p class = "col-12 js-words-info" style = "font-size:50px;">' + exampleSentenceEn + '</p>';
                             ins += '<p class = "col-12 js-words-info text text-secondary pt-0 mt-0">' + exampleSentenceJa + '</p>';
-                            ins += '<button class = "col-5 m-5 btn btn-lg btn-outline-primary js-next-word"  id = "js-focus">次の問題へ</button>';
                         ins += '</div>';
                     ins += '</div>';
                 document.querySelector('.js-words-content').innerHTML = ins;
